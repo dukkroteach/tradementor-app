@@ -1,5 +1,6 @@
 import type { Stock } from '../types/stock'
 import { computeSignal } from '../utils/signal'
+import { DataSourceBadge } from './DataSourceBadge'
 import { SignalBadge } from './SignalBadge'
 
 export function StockCard({ stock, onSelect, selected }: { stock: Stock; onSelect: () => void; selected: boolean }) {
@@ -21,7 +22,10 @@ export function StockCard({ stock, onSelect, selected }: { stock: Stock; onSelec
           </div>
           <p className="mt-0.5 text-xs text-muted-400 truncate max-w-[14rem]">{stock.name}</p>
         </div>
-        <SignalBadge signal={signal} score={score} />
+        <div className="flex flex-col items-end gap-1">
+          <SignalBadge signal={signal} score={score} />
+          <DataSourceBadge source={stock.dataSource} />
+        </div>
       </div>
 
       <div className="mt-3 flex items-end justify-between">

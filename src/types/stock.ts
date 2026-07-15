@@ -1,5 +1,7 @@
 export type Signal = 'buy' | 'hold' | 'sell'
 
+export type DataSource = 'loading' | 'live' | 'simulated'
+
 export interface Candle {
   time: string // 'YYYY-MM-DD'
   open: number
@@ -26,4 +28,5 @@ export interface Stock {
   changePercent: number
   fundamentals: Fundamentals
   candles: Candle[]
+  dataSource: DataSource
 }

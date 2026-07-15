@@ -1,8 +1,9 @@
 import type { Candle, Fundamentals, Stock } from '../types/stock'
 import { mulberry32, seedFromString } from '../utils/random'
 
-interface StockSeed {
+export interface StockSeed {
   symbol: string
+  cseSymbol: string // ticker as used by the CSE trading API, e.g. "COMB.N0000"
   name: string
   sector: string
   basePrice: number
@@ -11,9 +12,10 @@ interface StockSeed {
   drift: number // slight upward/downward bias per day, %
 }
 
-const STOCK_SEEDS: StockSeed[] = [
+export const STOCK_SEEDS: StockSeed[] = [
   {
     symbol: 'COMB',
+    cseSymbol: 'COMB.N0000',
     name: 'Commercial Bank of Ceylon PLC',
     sector: 'Banking',
     basePrice: 118.5,
@@ -23,6 +25,7 @@ const STOCK_SEEDS: StockSeed[] = [
   },
   {
     symbol: 'JKH',
+    cseSymbol: 'JKH.N0000',
     name: 'John Keells Holdings PLC',
     sector: 'Diversified',
     basePrice: 196.25,
@@ -32,6 +35,7 @@ const STOCK_SEEDS: StockSeed[] = [
   },
   {
     symbol: 'HNB',
+    cseSymbol: 'HNB.N0000',
     name: 'Hatton National Bank PLC',
     sector: 'Banking',
     basePrice: 232.0,
@@ -41,6 +45,7 @@ const STOCK_SEEDS: StockSeed[] = [
   },
   {
     symbol: 'SAMP',
+    cseSymbol: 'SAMP.N0000',
     name: 'Sampath Bank PLC',
     sector: 'Banking',
     basePrice: 91.75,
@@ -50,6 +55,7 @@ const STOCK_SEEDS: StockSeed[] = [
   },
   {
     symbol: 'LOLC',
+    cseSymbol: 'LOLC.N0000',
     name: 'LOLC Holdings PLC',
     sector: 'Financial Services',
     basePrice: 458.0,
@@ -100,24 +106,27 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100
 }
 
-export function buildStocks(): Stock[] {
-  return STOCK_SEEDS.map((seed) => {
-    const candles = generateCandles(seed, 120)
-    const last = candles[candles.length - 1]
-    const prev = candles[candles.length - 2]
-    const price = last?.close ?? seed.basePrice
-    const change = prev ? round2(price - prev.close) : 0
-    const changePercent = prev ? round2((change / prev.close) * 100) : 0
+export function buildSimulatedStock(seed: StockSeed): Stock {
+  const candles = generateCandles(seed, 120)
+  const last = candles[candles.length - 1]
+  const prev = candles[candles.length - 2]
+  const price = last?.close ?? seed.basePrice
+  const change = prev ? round2(price - prev.close) : 0
+  const changePercent = prev ? round2((change / prev.close) * 100) : 0
 
-    return {
-      symbol: seed.symbol,
-      name: seed.name,
-      sector: seed.sector,
-      price,
-      change,
-      changePercent,
-      fundamentals: seed.fundamentals,
-      candles,
-    }
-  })
+  return {
+    symbol: seed.symbol,
+    name: seed.name,
+    sector: seed.sector,
+    price,
+    change,
+    changePercent,
+    fundamentals: seed.fundamentals,
+    candles,
+    dataSource: 'simulated',
+  }
+}
+
+export function buildStocks(): Stock[] {
+  return STOCK_SEEDS.map(buildSimulatedStock)
 }

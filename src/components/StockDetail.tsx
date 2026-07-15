@@ -1,6 +1,7 @@
 import type { Stock } from '../types/stock'
 import { computeSignal } from '../utils/signal'
 import { CandlestickChart } from './CandlestickChart'
+import { DataSourceBadge } from './DataSourceBadge'
 import { SignalBadge } from './SignalBadge'
 
 export function StockDetail({ stock }: { stock: Stock }) {
@@ -14,6 +15,7 @@ export function StockDetail({ stock }: { stock: Stock }) {
           <div className="flex items-center gap-3">
             <h2 className="font-mono text-xl font-semibold text-muted-100">{stock.symbol}</h2>
             <SignalBadge signal={signal} score={score} />
+            <DataSourceBadge source={stock.dataSource} />
           </div>
           <p className="text-sm text-muted-300">{stock.name}</p>
         </div>
@@ -38,6 +40,9 @@ export function StockDetail({ stock }: { stock: Stock }) {
         <Metric label="Div. Yield" value={`${stock.fundamentals.dividendYield.toFixed(1)}%`} />
         <Metric label="EPS Growth" value={`${stock.fundamentals.epsGrowth >= 0 ? '+' : ''}${stock.fundamentals.epsGrowth.toFixed(1)}%`} />
       </div>
+      <p className="mt-2 text-[10px] text-muted-400">
+        Fundamentals are illustrative — no free real-time source publishes per-stock P/E, P/B, or ROE for CSE.
+      </p>
 
       <div className="mt-5">
         <h3 className="text-xs font-medium uppercase tracking-wide text-muted-400">Signal rationale</h3>
