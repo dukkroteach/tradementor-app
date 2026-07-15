@@ -1,6 +1,6 @@
 export type Signal = 'buy' | 'hold' | 'sell'
 
-export type DataSource = 'loading' | 'live' | 'simulated'
+export type DataSource = 'loading' | 'live' | 'simulated' | 'manual'
 
 export interface Candle {
   time: string // 'YYYY-MM-DD'
@@ -29,4 +29,17 @@ export interface Stock {
   fundamentals: Fundamentals
   candles: Candle[]
   dataSource: DataSource
+}
+
+/** A partial, manually-entered set of fields that overrides live/simulated data for a stock. */
+export interface ManualOverride {
+  price?: number
+  change?: number
+  changePercent?: number
+  pe?: number
+  pb?: number
+  roe?: number
+  dividendYield?: number
+  epsGrowth?: number
+  updatedAt: string // ISO timestamp
 }

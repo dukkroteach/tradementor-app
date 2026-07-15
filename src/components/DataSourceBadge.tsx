@@ -3,6 +3,7 @@ import type { DataSource } from '../types/stock'
 const CONFIG: Record<DataSource, { label: string; classes: string; dot: string }> = {
   live: { label: 'Live', classes: 'text-signal-buy', dot: 'bg-signal-buy' },
   simulated: { label: 'Simulated', classes: 'text-signal-hold', dot: 'bg-signal-hold' },
+  manual: { label: 'Manual', classes: 'text-accent-teal', dot: 'bg-accent-teal' },
   loading: { label: 'Loading', classes: 'text-muted-400', dot: 'bg-muted-400' },
 }
 

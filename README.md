@@ -7,6 +7,7 @@ A React + TypeScript web app for tracking Colombo Stock Exchange (CSE) investmen
 - Dashboard of key CSE stocks (COMB, JKH, HNB, SAMP, LOLC) with price, change %, and fundamentals (P/E, P/B, ROE, dividend yield, EPS growth)
 - Candlestick price charts per stock (via `lightweight-charts`), backed by real CSE trade history when reachable
 - A simple rules-based buy/hold/sell signal derived from valuation, profitability, and momentum
+- An Admin screen (`#admin`) for manually entering/overriding price and fundamentals per stock
 - Muted dark theme throughout
 
 ## Data sources
@@ -38,6 +39,21 @@ needed:
 # .env.local, or as a build-time env var in CI
 VITE_CSE_API_BASE=https://your-proxy.example.workers.dev/api
 ```
+
+## Admin screen (manual data overrides)
+
+Click **Admin** in the header (or visit `#admin`) to manually enter price, change, change %, P/E, P/B, ROE,
+dividend yield, and EPS growth for any stock. Saved values take priority over live and simulated data everywhere
+in the app — the watchlist, the detail panel, the buy/hold/sell signal, and the candlestick chart (the chart's
+latest candle is synthesized to match a manually entered price). Each stock shows a "Manual" badge wherever an
+override is active. Use **Reset to live/simulated** on a stock, or **Clear all overrides**, to remove overrides.
+
+**Overrides are stored in this browser's `localStorage` only.** There is no backend, so:
+
+- They persist across reloads and visits on the same browser/device.
+- They are **not** shared with other visitors to the deployed site, and won't show up if you open the app on a
+  different browser or device.
+- Clearing site data/browser storage erases them.
 
 ## Getting started
 
