@@ -43,6 +43,18 @@ export function useManualOverrides() {
     })
   }, [])
 
+  const setManyOverrides = useCallback((entries: Record<string, OverrideFields>) => {
+    setOverrides((prev) => {
+      const now = new Date().toISOString()
+      const next = { ...prev }
+      for (const [symbol, fields] of Object.entries(entries)) {
+        next[symbol] = { ...fields, updatedAt: now }
+      }
+      writeStorage(next)
+      return next
+    })
+  }, [])
+
   const clearOverride = useCallback((symbol: string) => {
     setOverrides((prev) => {
       if (!(symbol in prev)) return prev
@@ -58,5 +70,5 @@ export function useManualOverrides() {
     writeStorage({})
   }, [])
 
-  return { overrides, setOverride, clearOverride, clearAll }
+  return { overrides, setOverride, setManyOverrides, clearOverride, clearAll }
 }

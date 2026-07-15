@@ -1,17 +1,20 @@
 import type { OverrideFields } from '../hooks/useManualOverrides'
 import type { ManualOverride, Stock } from '../types/stock'
 import { AdminStockRow } from './AdminStockRow'
+import { CsvImportSection } from './CsvImportSection'
 
 export function AdminPanel({
   stocks,
   overrides,
   onSave,
+  onSaveMany,
   onClear,
   onClearAll,
 }: {
   stocks: Stock[]
   overrides: Record<string, ManualOverride>
   onSave: (symbol: string, fields: OverrideFields) => void
+  onSaveMany: (entries: Record<string, OverrideFields>) => void
   onClear: (symbol: string) => void
   onClearAll: () => void
 }) {
@@ -19,6 +22,8 @@ export function AdminPanel({
 
   return (
     <div className="space-y-4">
+      <CsvImportSection stocks={stocks} onImportMany={onSaveMany} />
+
       <div className="panel p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
@@ -42,8 +47,10 @@ export function AdminPanel({
 
       <div className="grid gap-4 sm:grid-cols-2">
         {stocks.map((stock) => (
+          // Remounting on updatedAt resyncs the form's local draft whenever the override
+          // changes from outside this row (CSV import, a reset) instead of showing stale values.
           <AdminStockRow
-            key={stock.symbol}
+            key={`${stock.symbol}-${overrides[stock.symbol]?.updatedAt ?? 'base'}`}
             stock={stock}
             hasOverride={Boolean(overrides[stock.symbol])}
             onSave={(fields) => onSave(stock.symbol, fields)}

@@ -4,25 +4,34 @@ import { useHashRoute } from './hooks/useHashRoute'
 import { useManualOverrides } from './hooks/useManualOverrides'
 import { applyManualOverride } from './utils/applyManualOverride'
 import { AdminPanel } from './components/AdminPanel'
+import { Chatbot } from './components/Chatbot'
 import { StockCard } from './components/StockCard'
 import { StockDetail } from './components/StockDetail'
 
+type Route = 'dashboard' | 'admin' | 'chat'
+
+const NAV_ITEMS: { route: Route; label: string; hash: string }[] = [
+  { route: 'dashboard', label: 'Dashboard', hash: '' },
+  { route: 'admin', label: 'Admin', hash: 'admin' },
+  { route: 'chat', label: 'Chat', hash: 'chat' },
+]
+
 function App() {
   const { stocks: baseStocks, lastRefreshedAt, refresh } = useCseStocks()
-  const { overrides, setOverride, clearOverride, clearAll } = useManualOverrides()
-  const [route, navigate] = useHashRoute()
+  const { overrides, setOverride, setManyOverrides, clearOverride, clearAll } = useManualOverrides()
+  const [hash, navigate] = useHashRoute()
   const [selectedSymbol, setSelectedSymbol] = useState<string | undefined>(undefined)
 
   const stocks = baseStocks.map((stock) => applyManualOverride(stock, overrides[stock.symbol]))
   const selectedStock = stocks.find((s) => s.symbol === selectedSymbol) ?? stocks[0]
   const anyLive = stocks.some((s) => s.dataSource === 'live')
   const anySimulated = stocks.some((s) => s.dataSource === 'simulated')
-  const isAdmin = route === 'admin'
+  const route: Route = hash === 'admin' ? 'admin' : hash === 'chat' ? 'chat' : 'dashboard'
 
   return (
     <div className="min-h-screen bg-surface-950">
       <header className="border-b border-surface-800 bg-surface-900/60">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-accent-teal/15 text-accent-teal font-mono text-sm font-bold">
               TM
@@ -32,19 +41,39 @@ function App() {
               <p className="text-xs text-muted-400">Colombo Stock Exchange · Investment Tracker</p>
             </div>
           </div>
-          <button
-            onClick={() => navigate(isAdmin ? '' : 'admin')}
-            className="shrink-0 rounded-md border border-surface-700 bg-surface-800 px-3 py-1.5 text-xs font-medium text-muted-200 hover:border-surface-500 hover:text-muted-100"
-          >
-            {isAdmin ? '← Back to dashboard' : 'Admin'}
-          </button>
+          <nav className="flex gap-1.5">
+            {NAV_ITEMS.map((item) => (
+              <button
+                key={item.route}
+                onClick={() => navigate(item.hash)}
+                className={`rounded-md border px-3 py-1.5 text-xs font-medium ${
+                  route === item.route
+                    ? 'border-accent-teal/40 bg-accent-teal/15 text-accent-teal'
+                    : 'border-surface-700 bg-surface-800 text-muted-200 hover:border-surface-500 hover:text-muted-100'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
-        {isAdmin ? (
-          <AdminPanel stocks={stocks} overrides={overrides} onSave={setOverride} onClear={clearOverride} onClearAll={clearAll} />
-        ) : (
+        {route === 'admin' && (
+          <AdminPanel
+            stocks={stocks}
+            overrides={overrides}
+            onSave={setOverride}
+            onSaveMany={setManyOverrides}
+            onClear={clearOverride}
+            onClearAll={clearAll}
+          />
+        )}
+
+        {route === 'chat' && <Chatbot stocks={stocks} />}
+
+        {route === 'dashboard' && (
           <>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-400">
               <span>

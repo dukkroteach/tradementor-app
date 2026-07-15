@@ -7,7 +7,8 @@ A React + TypeScript web app for tracking Colombo Stock Exchange (CSE) investmen
 - Dashboard of key CSE stocks (COMB, JKH, HNB, SAMP, LOLC) with price, change %, and fundamentals (P/E, P/B, ROE, dividend yield, EPS growth)
 - Candlestick price charts per stock (via `lightweight-charts`), backed by real CSE trade history when reachable
 - A simple rules-based buy/hold/sell signal derived from valuation, profitability, and momentum
-- An Admin screen (`#admin`) for manually entering/overriding price and fundamentals per stock
+- An Admin screen (`#admin`) for manually entering/overriding price and fundamentals per stock, including bulk import from a CSV file
+- A rule-based Stock Assistant chatbot (`#chat`) that answers questions about price, fundamentals, and signals for your stocks
 - Muted dark theme throughout
 
 ## Data sources
@@ -54,6 +55,38 @@ override is active. Use **Reset to live/simulated** on a stock, or **Clear all o
 - They are **not** shared with other visitors to the deployed site, and won't show up if you open the app on a
   different browser or device.
 - Clearing site data/browser storage erases them.
+
+### CSV import
+
+From the Admin screen, click **Download template** for a CSV pre-filled with the current value for every stock,
+or upload your own with a header row and these columns (case-insensitive, order doesn't matter):
+
+```
+symbol,price,change%,pe,pb,roe,dividendYield,epsGrowth
+COMB,150.25,1.5,4.1,0.75,20.2,7.5,12.1
+```
+
+- `symbol` must match one of the app's known tickers (COMB, JKH, HNB, SAMP, LOLC); unrecognized symbols are
+  skipped with a warning, not an error — the rest of the file still imports.
+- Any column can be omitted per row; omitted or non-numeric values are left unchanged rather than zeroed out or
+  aborting the import, and a warning lists exactly which rows/fields were skipped.
+- If `change%` is given without an absolute `change`, the absolute change is derived from `price` and `change%`
+  automatically.
+- Imported rows are saved as the same manual overrides described above — same priority, same persistence
+  (localStorage, this browser only), same "Manual" badge, and they show up pre-filled in the per-stock edit forms
+  so you can fine-tune after a bulk import.
+
+## Stock Assistant (chatbot)
+
+Click **Chat** in the header (or visit `#chat`) to ask questions like "What's COMB's P/E?", "Should I buy JKH?",
+"Compare HNB and SAMP", or "Which stock has the highest ROE?". It answers from whatever data is currently loaded
+(live, simulated, or manually overridden/CSV-imported) — the same numbers shown on the dashboard.
+
+This is a **rule-based assistant, not a general AI**: it pattern-matches your question against the known stock
+symbols and a fixed set of metrics/intents (price, change, P/E, P/B, ROE, dividend yield, EPS growth, buy/hold/sell
+signal, comparisons, highest/lowest lookups). There is no external API call and no API key involved — deliberately,
+since this app has no backend to keep a key safe from a public deployment. It can't hold an open-ended conversation
+or answer anything outside these stocks and metrics.
 
 ## Getting started
 
