@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useCseStocks } from './hooks/useCseStocks'
 import { useHashRoute } from './hooks/useHashRoute'
 import { useManualOverrides } from './hooks/useManualOverrides'
+import { useStockImages } from './hooks/useStockImages'
 import { applyManualOverride } from './utils/applyManualOverride'
 import { AdminPanel } from './components/AdminPanel'
 import { Chatbot } from './components/Chatbot'
@@ -19,6 +20,7 @@ const NAV_ITEMS: { route: Route; label: string; hash: string }[] = [
 function App() {
   const { stocks: baseStocks, lastRefreshedAt, refresh } = useCseStocks()
   const { overrides, setOverride, setManyOverrides, clearOverride, clearAll } = useManualOverrides()
+  const { images, setImage, clearImage } = useStockImages()
   const [hash, navigate] = useHashRoute()
   const [selectedSymbol, setSelectedSymbol] = useState<string | undefined>(undefined)
 
@@ -68,6 +70,9 @@ function App() {
             onSaveMany={setManyOverrides}
             onClear={clearOverride}
             onClearAll={clearAll}
+            images={images}
+            onSetImage={setImage}
+            onClearImage={clearImage}
           />
         )}
 
@@ -104,7 +109,9 @@ function App() {
                 ))}
               </section>
 
-              <section aria-label="Stock detail">{selectedStock && <StockDetail stock={selectedStock} />}</section>
+              <section aria-label="Stock detail">
+                {selectedStock && <StockDetail stock={selectedStock} image={images[selectedStock.symbol]} />}
+              </section>
             </div>
 
             <p className="mt-8 text-center text-xs text-muted-400">

@@ -1,4 +1,5 @@
 import type { OverrideFields } from '../hooks/useManualOverrides'
+import type { SetImageResult, StockImage } from '../hooks/useStockImages'
 import type { ManualOverride, Stock } from '../types/stock'
 import { AdminStockRow } from './AdminStockRow'
 import { CsvImportSection } from './CsvImportSection'
@@ -10,6 +11,9 @@ export function AdminPanel({
   onSaveMany,
   onClear,
   onClearAll,
+  images,
+  onSetImage,
+  onClearImage,
 }: {
   stocks: Stock[]
   overrides: Record<string, ManualOverride>
@@ -17,6 +21,9 @@ export function AdminPanel({
   onSaveMany: (entries: Record<string, OverrideFields>) => void
   onClear: (symbol: string) => void
   onClearAll: () => void
+  images: Record<string, StockImage>
+  onSetImage: (symbol: string, image: StockImage) => SetImageResult
+  onClearImage: (symbol: string) => void
 }) {
   const overrideCount = Object.keys(overrides).length
 
@@ -55,6 +62,9 @@ export function AdminPanel({
             hasOverride={Boolean(overrides[stock.symbol])}
             onSave={(fields) => onSave(stock.symbol, fields)}
             onClear={() => onClear(stock.symbol)}
+            image={images[stock.symbol]}
+            onSetImage={(image) => onSetImage(stock.symbol, image)}
+            onClearImage={() => onClearImage(stock.symbol)}
           />
         ))}
       </div>

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import type { OverrideFields } from '../hooks/useManualOverrides'
+import type { SetImageResult, StockImage } from '../hooks/useStockImages'
 import type { Stock } from '../types/stock'
+import { resizeImageFile } from '../utils/image'
 
 interface FormValues {
   price: number
@@ -31,11 +33,17 @@ export function AdminStockRow({
   hasOverride,
   onSave,
   onClear,
+  image,
+  onSetImage,
+  onClearImage,
 }: {
   stock: Stock
   hasOverride: boolean
   onSave: (fields: OverrideFields) => void
   onClear: () => void
+  image: StockImage | undefined
+  onSetImage: (image: StockImage) => SetImageResult
+  onClearImage: () => void
 }) {
   const [values, setValues] = useState<FormValues>(() => toFormValues(stock))
   const [saved, setSaved] = useState(false)
@@ -91,6 +99,67 @@ export function AdminStockRow({
           Save
         </button>
       </div>
+
+      <ReferenceImageField image={image} onSetImage={onSetImage} onClearImage={onClearImage} />
+    </div>
+  )
+}
+
+function ReferenceImageField({
+  image,
+  onSetImage,
+  onClearImage,
+}: {
+  image: StockImage | undefined
+  onSetImage: (image: StockImage) => SetImageResult
+  onClearImage: () => void
+}) {
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please choose an image file.')
+      return
+    }
+
+    setBusy(true)
+    setError(null)
+    try {
+      const dataUrl = await resizeImageFile(file)
+      const result = onSetImage({ dataUrl, fileName: file.name, uploadedAt: new Date().toISOString() })
+      if (!result.ok) setError(result.error)
+    } catch {
+      setError('Could not process that image.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="mt-3 border-t border-surface-700 pt-3">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] uppercase tracking-wide text-muted-400">Reference image</span>
+        {image && (
+          <button onClick={onClearImage} className="text-xs text-muted-400 hover:text-signal-sell">
+            Remove
+          </button>
+        )}
+      </div>
+      <div className="mt-2 flex items-center gap-3">
+        {image && (
+          <img src={image.dataUrl} alt={image.fileName} className="h-14 w-auto rounded-md border border-surface-700 object-cover" />
+        )}
+        <label className="cursor-pointer rounded-md border border-surface-700 bg-surface-800 px-2.5 py-1.5 text-xs font-medium text-muted-300 hover:border-surface-500 hover:text-muted-100">
+          {busy ? 'Processing...' : image ? 'Replace image' : 'Upload image'}
+          <input type="file" accept="image/*" className="hidden" onChange={handleFile} disabled={busy} />
+        </label>
+      </div>
+      {error && <p className="mt-1 text-xs text-signal-sell">{error}</p>}
     </div>
   )
 }

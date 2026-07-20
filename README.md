@@ -9,6 +9,7 @@ A React + TypeScript web app for tracking Colombo Stock Exchange (CSE) investmen
 - A simple rules-based buy/hold/sell signal derived from valuation, profitability, and momentum
 - An Admin screen (`#admin`) for manually entering/overriding price and fundamentals per stock, including bulk import from a CSV file
 - A rule-based Stock Assistant chatbot (`#chat`) that answers questions about price, fundamentals, and signals for your stocks
+- Per-stock reference image/screenshot attachments in the Admin screen, shown in the detail panel
 - Muted dark theme throughout
 
 ## Data sources
@@ -75,6 +76,20 @@ COMB,150.25,1.5,4.1,0.75,20.2,7.5,12.1
 - Imported rows are saved as the same manual overrides described above — same priority, same persistence
   (localStorage, this browser only), same "Manual" badge, and they show up pre-filled in the per-stock edit forms
   so you can fine-tune after a bulk import.
+
+### Reference image attachments
+
+Each stock in the Admin screen has an **Reference image** field where you can upload a screenshot — e.g. from
+your broker app or a news article — as supporting context for why you entered certain values. It shows up in
+that stock's detail panel on the dashboard; click the thumbnail to view it full-size.
+
+- Images are downscaled and JPEG-compressed client-side (max 800px, ~70% quality) before being stored, to keep
+  them small in a storage medium that has no room for full-resolution screenshots across several stocks.
+- Like everything else with no backend, attachments live in this browser's `localStorage` only — not shared
+  across devices or visitors. If storage is full, the upload fails with an on-screen error instead of silently
+  losing data; removing an old attachment or using a smaller image resolves it.
+- Attachments have their own lifecycle, independent of manual data overrides: "Reset to live/simulated" and
+  "Clear all overrides" do not remove an attached image — use **Remove** under the image itself for that.
 
 ## Stock Assistant (chatbot)
 

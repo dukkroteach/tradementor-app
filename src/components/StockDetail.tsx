@@ -1,10 +1,12 @@
+import type { StockImage } from '../hooks/useStockImages'
 import type { Stock } from '../types/stock'
 import { computeSignal } from '../utils/signal'
 import { CandlestickChart } from './CandlestickChart'
 import { DataSourceBadge } from './DataSourceBadge'
 import { SignalBadge } from './SignalBadge'
+import { StockImageViewer } from './StockImageViewer'
 
-export function StockDetail({ stock }: { stock: Stock }) {
+export function StockDetail({ stock, image }: { stock: Stock; image: StockImage | undefined }) {
   const { signal, score, reasons } = computeSignal(stock.fundamentals, stock.candles)
   const isUp = stock.change >= 0
 
@@ -55,6 +57,15 @@ export function StockDetail({ stock }: { stock: Stock }) {
           ))}
         </ul>
       </div>
+
+      {image && (
+        <div className="mt-5">
+          <h3 className="text-xs font-medium uppercase tracking-wide text-muted-400">Reference image</h3>
+          <div className="mt-2">
+            <StockImageViewer image={image} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
